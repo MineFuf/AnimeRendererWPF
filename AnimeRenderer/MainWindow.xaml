@@ -1,0 +1,304 @@
+﻿<Window x:Class="AnimeRenderer.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:AnimeRenderer"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800"
+        Closing="Window_Closing">
+
+    <Window.Resources>
+        <Style x:Key="style1" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="15"/>
+        </Style>
+    </Window.Resources>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition
+                Height="90"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+
+        <Grid
+            Margin="0 5 0 0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition
+                    Width="150"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition
+                    Height="40"/>
+                <RowDefinition
+                    Height="30"/>
+            </Grid.RowDefinitions>
+
+            <TextBox
+                Margin="7 0 7 10"
+                x:Name="inputDirTextBox"
+                Padding="5 5 0 0"
+                IsReadOnly="True"
+                Grid.Row="0"
+                ToolTip="Input directory">
+            </TextBox>
+            <TextBox
+                Margin="7 0 7 0"
+                x:Name="outputDirTextBox"
+                Padding="5 5 0 0"
+                IsReadOnly="True"
+                Grid.Row="1"
+                ToolTip="Output directory">
+            </TextBox>
+            <Button
+                Margin="0 0 7 10"
+                Click="chooseInputClick"
+                Grid.Column="1"
+                Grid.Row="0"
+                Content="Choose input directory"/>
+            <Button
+                Margin="0 0 7 0"
+                Click="chooseOutputClick"
+                Grid.Column="1"
+                Grid.Row="1"
+                Content="Choose output directory">
+            </Button>
+        </Grid>
+
+        <Grid
+            Grid.Row="1"
+            Background="LightGreen">
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition
+                    Width="170"/>
+                <ColumnDefinition/>
+                <ColumnDefinition
+                    Width="200"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+
+
+            <ScrollViewer>
+                <StackPanel
+                    Margin="5">
+                    <StackPanel
+                        Width="140"
+                        Grid.Column="0">
+                        <GroupBox
+                            Header="Video - Audio prop.">
+                            <StackPanel>
+                                <TextBlock
+                                    Text="Video Codec"/>
+                                <ComboBox
+                                    Name="videoCodecCombo"/>
+                                <TextBlock
+                                    Margin="0 3 0 0"
+                                    Text="Video Type"/>
+                                <ComboBox
+                                    Name="videoTypeCombo"/>
+                                <TextBlock
+                                    Margin="0 3 0 0"
+                                    Text="Video Resolution"/>
+                                <ComboBox
+                                    Name="videoResolutionCombo"/>
+                                <TextBlock
+                                    Margin="0 3 0 0"
+                                    Text="Video Quality"/>
+                                <ComboBox
+                                    Name="videoQualityCombo"/>
+                                <TextBlock
+                                    Margin="0 3 0 0"
+                                    Text="Audio Codec"/>
+                                <ComboBox
+                                    Name="audioCodecCombo"/>
+                            </StackPanel>
+                        </GroupBox>
+                        <GroupBox
+                            Header="Other Properities">
+                            <StackPanel>
+                                <CheckBox
+                                    x:Name="videoTo1Dir"
+                                    Click="videoTo1Dir_Click"
+                                    Margin="3 3 3 3">
+                                    <TextBlock
+                                        Text="Video to 1 dir"/>
+                                </CheckBox>
+                                <CheckBox
+                                    x:Name="copyAllFiles"
+                                    Click="copyAllFiles_Click"
+                                    Margin="3 3 3 3">
+                                    <TextBlock
+                                        Text="Copy all selected files"
+                                        TextWrapping="WrapWithOverflow"/>
+                                </CheckBox>
+                            </StackPanel>
+                        </GroupBox>
+                    </StackPanel>
+                    <StackPanel
+                        Margin="0 10 0 0">
+                        <Grid>
+                            <ProgressBar
+                                Name="currFileProgressBar"
+                                Height="15"/>
+                            <TextBlock Style="{StaticResource style1}"
+                                Text="{Binding ElementName=currFileProgressBar,Path=Value,StringFormat={}{0:2}%}"
+                                HorizontalAlignment="Center"
+                                FontSize="15"/>
+                        </Grid>
+                        <Grid>
+                            <ProgressBar
+                                Name="allVideoFilesProgressBar"
+                                Height="15"/>
+                            <TextBlock Style="{StaticResource style1}"
+                                Text="{Binding ElementName=allVideoFilesProgressBar,Path=Value,StringFormat={}{0:2}%}"
+                                HorizontalAlignment="Center"
+                                FontSize="15"/>
+                        </Grid>
+                        <Grid>
+                            <ProgressBar
+                                Name="fullProgressBar"
+                                Height="15"/>
+                            <TextBlock Style="{StaticResource style1}"
+                                Text="{Binding ElementName=fullProgressBar,Path=Value,StringFormat={}{0:2}%}"
+                                HorizontalAlignment="Center"
+                                FontSize="15"/>
+                        </Grid>
+                        <TextBlock
+                            x:Name="statusTextBlock"
+                            Text="Nothing"
+                            TextAlignment="Center"/>
+                    </StackPanel>
+                        <Button
+                        Click="RunRenderButton_Click"
+                        x:Name="RunRenderButton"
+                        Margin="0 10 0 0">
+                        <TextBlock Text="Run Render"/>
+                    </Button>
+                </StackPanel>
+            </ScrollViewer>
+
+            <TreeView
+                TreeViewItem.Selected="filesTreeView_Selected"
+                ItemsSource="{Binding items}"
+                Name="filesTreeView"
+                Grid.Column="1">
+                <TreeView.ItemTemplate>
+                    <HierarchicalDataTemplate
+                    DataType="{x:Type local:CheckableItem}" 
+                    ItemsSource="{Binding Children}">
+                        <StackPanel
+                            Orientation="Horizontal"
+                            Margin="0 5 0 0">
+                            <CheckBox
+                                VerticalAlignment="Center"
+                                IsChecked="{Binding IsChecked,Mode=TwoWay}"/>
+                            <TextBlock
+                                Margin="5 0 0 0"
+                                Foreground="{Binding TextColor}"
+                                Text="{Binding Value}"
+                                FontSize="15"/>
+                        </StackPanel>
+                    </HierarchicalDataTemplate>
+                </TreeView.ItemTemplate>
+            </TreeView>
+            <Grid
+                Margin="5"
+                VerticalAlignment="Top"
+                Grid.Column="2">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+
+                <TextBlock
+                    Grid.Row="0"
+                    Text="File Info"
+                    TextAlignment="Center"
+                    FontSize="17"/>
+                <Grid
+                Margin="0 20 0 0"
+                    VerticalAlignment="Top"
+                    Grid.Row="1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition
+                            Width="100"/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition
+                            Height="Auto"/>
+                        <RowDefinition
+                            Height="Auto"/>
+                        <RowDefinition
+                            Height="Auto"/>
+                        <RowDefinition
+                            Height="Auto"/>
+                        <RowDefinition
+                            Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Style="{StaticResource style1}"
+                        Grid.Column="0"
+                        Grid.Row="0"
+                        Text="Filename"/>
+                    <TextBlock Style="{StaticResource style1}"
+                        Name="FilenametextBlock"
+                        Grid.Column="1"
+                        Grid.Row="0"
+                        Text=""
+                        MaxWidth="130"
+                        TextWrapping="WrapWithOverflow"/>
+
+                    <TextBlock Style="{StaticResource style1}"
+                        Grid.Column="0"
+                        Grid.Row="1"
+                        Text="Frame size"/>
+                    <TextBlock Style="{StaticResource style1}"
+                        Name="FrameSizetextBlock"
+                        Grid.Column="1"
+                        Grid.Row="1"
+                        Text=""/>
+
+                    <TextBlock Style="{StaticResource style1}"
+                        Grid.Column="0"
+                        Grid.Row="2"
+                        Text="FPS"/>
+                    <TextBlock Style="{StaticResource style1}"
+                        Name="FPStextBlock"
+                        Grid.Column="1"
+                        Grid.Row="2"
+                        Text=""/>
+
+                    <TextBlock Style="{StaticResource style1}"
+                        Grid.Column="0"
+                        Grid.Row="3"
+                        Text="Codec"/>
+                    <TextBlock Style="{StaticResource style1}"
+                        Name="CodectextBlock"
+                        Grid.Column="1"
+                        Grid.Row="3"
+                        Text=""/>
+
+                    <TextBlock Style="{StaticResource style1}"
+                        Grid.Column="0"
+                        Grid.Row="4"
+                        Text="Duration"/>
+                    <TextBlock Style="{StaticResource style1}"
+                        Name="DurationtextBlock"
+                        Grid.Column="1"
+                        Grid.Row="4"
+                        Text=""/>
+                </Grid>
+            </Grid>
+        </Grid>
+    </Grid>
+</Window>
